@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Sammy · Voedingen</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sammy">
+<meta name="theme-color" content="#FAF3EA">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF3EA;
+    --card:#FFFFFF;
+    --ink:#46362E;
+    --ink-soft:#8A7A6E;
+    --line:#EFE3D5;
+    --mm:#E08E88;        /* moedermelk - dusty rose */
+    --mm-soft:#F9E4E2;
+    --fv:#8BAF9C;        /* flesvoeding - sage */
+    --fv-soft:#E3EEE8;
+    --btn:#46362E;
+    --radius:22px;
+    --shadow:0 6px 24px rgba(70,54,46,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    padding:max(env(safe-area-inset-top),14px) 16px calc(env(safe-area-inset-bottom) + 32px);
+    background-image:
+      radial-gradient(600px 400px at 85% -50px, rgba(224,142,136,.10), transparent 70%),
+      radial-gradient(500px 380px at -60px 30%, rgba(139,175,156,.10), transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:440px;margin:0 auto}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand svg{display:block}
+  h1{font-family:'Fraunces',serif;font-weight:700;font-size:30px;letter-spacing:-.5px;line-height:1}
+  .sub{font-size:13px;font-weight:700;color:var(--ink-soft);margin-top:3px}
+  .gear{background:none;border:none;padding:10px;color:var(--ink-soft);cursor:pointer;border-radius:14px}
+  .gear:active{background:rgba(70,54,46,.06)}
+
+  /* ---------- status banner ---------- */
+  .banner{display:none;background:#FBEFDD;border:1.5px dashed #E3C99F;color:#8A6A35;border-radius:16px;
+    padding:12px 14px;font-size:13.5px;font-weight:700;margin-bottom:14px;line-height:1.45}
+  .banner.show{display:block}
+  .banner button{background:none;border:none;color:#8A6A35;font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+
+  /* ---------- last feed pill ---------- */
+  .lastfeed{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:18px;
+    box-shadow:var(--shadow);padding:13px 16px;margin-bottom:14px}
+  .lastfeed .dot{width:10px;height:10px;border-radius:50%;background:var(--mm);flex:none}
+  .lastfeed b{font-weight:800}
+  .lastfeed span{font-size:14.5px;color:var(--ink-soft);font-weight:600}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+  .card h2{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin-bottom:14px;display:flex;align-items:baseline;justify-content:space-between}
+  .card h2 small{font-family:'Nunito';font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+
+  /* ---------- add form ---------- */
+  .typerow{display:flex;background:var(--bg);border-radius:16px;padding:4px;margin-bottom:14px}
+  .typerow button{flex:1;border:none;background:none;padding:11px 6px;border-radius:13px;font:inherit;
+    font-weight:800;font-size:14.5px;color:var(--ink-soft);cursor:pointer;transition:all .18s}
+  .typerow button.on-mm{background:var(--mm);color:#fff;box-shadow:0 3px 10px rgba(224,142,136,.4)}
+  .typerow button.on-fv{background:var(--fv);color:#fff;box-shadow:0 3px 10px rgba(139,175,156,.4)}
+
+  .row2{display:flex;gap:10px;margin-bottom:14px}
+  .field{flex:1;background:var(--bg);border-radius:16px;padding:10px 14px}
+  .field label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:2px}
+  .field input{border:none;background:none;font-family:'Fraunces',serif;font-size:20px;font-weight:600;
+    color:var(--ink);width:100%;outline:none;padding:0}
+  .field input::-webkit-date-and-time-value{text-align:left}
+
+  .mlbox{background:var(--bg);border-radius:16px;padding:12px 14px 14px;margin-bottom:14px}
+  .mlbox label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+  .mlmain{display:flex;align-items:center;justify-content:space-between;margin:4px 0 10px}
+  .mlval{font-family:'Fraunces',serif;font-size:44px;font-weight:700;line-height:1}
+  .mlval small{font-size:17px;font-weight:600;color:var(--ink-soft);margin-left:2px}
+  .step{display:flex;gap:8px}
+  .step button{width:46px;height:46px;border-radius:50%;border:none;background:#fff;color:var(--ink);
+    font-size:24px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(70,54,46,.10);line-height:1}
+  .step button:active{transform:scale(.92)}
+  .chips{display:flex;gap:7px}
+  .chips button{flex:1;border:none;background:#fff;border-radius:12px;padding:8px 0;font:inherit;
+    font-weight:800;font-size:13.5px;color:var(--ink-soft);cursor:pointer;box-shadow:0 1px 4px rgba(70,54,46,.07)}
+  .chips button.sel{color:#fff;background:var(--ink)}
+
+  .save{width:100%;border:none;background:var(--btn);color:#FFF7EE;font:inherit;font-weight:800;
+    font-size:16.5px;padding:16px;border-radius:18px;cursor:pointer;box-shadow:0 6px 18px rgba(70,54,46,.28);
+    transition:transform .12s}
+  .save:active{transform:scale(.98)}
+  .save.saved{background:var(--fv)}
+
+  /* ---------- today list ---------- */
+  .feed{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+  .feed:last-child{border-bottom:none}
+  .feed .tdot{width:34px;height:34px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .feed .tdot.mm{background:var(--mm-soft)}
+  .feed .tdot.fv{background:var(--fv-soft)}
+  .feed .info{flex:1;min-width:0}
+  .feed .time{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+  .feed .meta{font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+  .feed .ml{font-family:'Fraunces',serif;font-weight:700;font-size:17px}
+  .feed .ml small{font-size:12px;color:var(--ink-soft);font-family:'Nunito';font-weight:700}
+  .del{border:none;background:none;color:#C9BBB0;font-size:17px;padding:8px 4px 8px 10px;cursor:pointer;font-weight:700}
+  .del.arm{color:#C0392B;font-size:12px;font-weight:800}
+  .empty{text-align:center;color:var(--ink-soft);font-weight:700;font-size:14px;padding:18px 0 10px}
+
+  .totals{display:flex;gap:10px;margin-top:14px}
+  .tot{flex:1;background:var(--bg);border-radius:14px;padding:10px 12px;text-align:center}
+  .tot b{display:block;font-family:'Fraunces',serif;font-size:21px;font-weight:700}
+  .tot span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
+
+  /* ---------- chart ---------- */
+  .legend{display:flex;gap:14px;margin-bottom:12px}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--ink-soft)}
+  .legend i{width:11px;height:11px;border-radius:4px;display:inline-block}
+  .chart{display:flex;gap:7px;align-items:flex-end;height:190px;padding-top:18px}
+  .daycol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;cursor:pointer;border-radius:10px}
+  .daycol .cnt{font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-bottom:4px;height:15px}
+  .daycol .bar{width:100%;max-width:38px;flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+  .seg{border-radius:5px;min-height:4px;transition:height .4s cubic-bezier(.2,.8,.3,1)}
+  .seg.mm{background:var(--mm)}
+  .seg.fv{background:var(--fv)}
+  .daycol .dlab{font-size:11px;font-weight:800;color:var(--ink-soft);margin-top:7px;text-transform:lowercase}
+  .daycol.seld .dlab{color:var(--ink)}
+  .daycol.seld{background:rgba(70,54,46,.05)}
+  .daydetail{margin-top:14px;background:var(--bg);border-radius:14px;padding:11px 14px;font-size:13.5px;font-weight:700;color:var(--ink-soft);line-height:1.5;min-height:44px}
+  .daydetail b{color:var(--ink)}
+
+  /* ---------- settings sheet ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(70,54,46,.35);display:none;z-index:40;backdrop-filter:blur(2px)}
+  .overlay.show{display:block}
+  .sheet{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-radius:26px 26px 0 0;
+    padding:24px 20px calc(env(safe-area-inset-bottom) + 28px);z-index:50;transform:translateY(105%);
+    transition:transform .3s cubic-bezier(.2,.8,.3,1);max-width:480px;margin:0 auto}
+  .sheet.show{transform:translateY(0)}
+  .sheet h3{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin-bottom:4px}
+  .sheet p{font-size:13.5px;color:var(--ink-soft);font-weight:600;line-height:1.5;margin-bottom:14px}
+  .sheet label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:12px 0 5px}
+  .sheet input{width:100%;border:1.5px solid var(--line);background:var(--bg);border-radius:13px;
+    padding:12px 14px;font:inherit;font-weight:700;font-size:14px;color:var(--ink);outline:none}
+  .sheet input:focus{border-color:var(--fv)}
+  .sheetbtns{display:flex;gap:10px;margin-top:18px}
+  .sheetbtns button{flex:1;border:none;border-radius:14px;padding:14px;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer}
+  .b-primary{background:var(--btn);color:#FFF7EE}
+  .b-ghost{background:var(--bg);color:var(--ink)}
+  .sharebtn{width:100%;margin-top:10px;border:1.5px dashed var(--line);background:none;border-radius:14px;
+    padding:13px;font:inherit;font-weight:800;font-size:14px;color:var(--ink-soft);cursor:pointer}
+  .connmsg{font-size:13px;font-weight:800;margin-top:10px;min-height:18px}
+  .connmsg.ok{color:#5B8A6F}.connmsg.err{color:#C0392B}
+
+  .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--ink);color:#FFF7EE;font-size:14px;font-weight:800;padding:12px 22px;border-radius:100px;
+    z-index:60;transition:transform .3s;box-shadow:0 8px 24px rgba(70,54,46,.35);white-space:nowrap}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  @keyframes pop{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+  .card,.lastfeed,header{animation:pop .5s cubic-bezier(.2,.8,.3,1) both}
+  .card:nth-of-type(2){animation-delay:.06s}
+  .card:nth-of-type(3){animation-delay:.12s}
+  .card:nth-of-type(4){animation-delay:.18s}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="14" y="3" width="12" height="5" rx="2.5" fill="#E08E88"/>
+        <path d="M16 8 h8 v3 c3 1.5 5 4.5 5 8 v13 a5 5 0 0 1 -5 5 h-8 a5 5 0 0 1 -5 -5 v-13 c0 -3.5 2 -6.5 5 -8 z" fill="#fff" stroke="#46362E" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M12 22 h16 v10 a4 4 0 0 1 -4 4 h-8 a4 4 0 0 1 -4 -4 z" fill="#F9E4E2"/>
+        <path d="M15 17 h4 M15 21 h4" stroke="#8BAF9C" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1 id="babyName">Sammy</h1>
+        <div class="sub" id="todaySub">nog geen voedingen vandaag</div>
+      </div>
+    </div>
+    <button class="gear" id="gearBtn" aria-label="Instellingen">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <div class="banner" id="banner">
+    Nog niet verbonden met de gedeelde database. Voedingen worden alleen op dit toestel bewaard.
+    <button id="bannerBtn">Verbinden →</button>
+  </div>
+
+  <div class="lastfeed" id="lastfeed" style="display:none">
+    <div class="dot" id="lfDot"></div>
+    <span>Laatste voeding <b id="lfAgo"></b> geleden · <b id="lfMl"></b></span>
+  </div>
+
+  <!-- add feeding -->
+  <div class="card">
+    <h2>Nieuwe voeding</h2>
+    <div class="typerow">
+      <button id="btnMM" class="on-mm">Moedermelk</button>
+      <button id="btnFV">Flesvoeding</button>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="inTime">Tijd</label>
+        <input type="time" id="inTime">
+      </div>
+      <div class="field">
+        <label for="inDate">Datum</label>
+        <input type="date" id="inDate">
+      </div>
+    </div>
+    <div class="mlbox">
+      <label>Hoeveelheid</label>
+      <div class="mlmain">
+        <div class="mlval"><span id="mlVal">120</span><small>ml</small></div>
+        <div class="step">
+          <button id="mlMinus" aria-label="minder">−</button>
+          <button id="mlPlus" aria-label="meer">+</button>
+        </div>
+      </div>
+      <div class="chips" id="chips">
+        <button data-ml="60">60</button>
+        <button data-ml="90">90</button>
+        <button data-ml="120">120</button>
+        <button data-ml="150">150</button>
+        <button data-ml="180">180</button>
+      </div>
+    </div>
+    <button class="save" id="saveBtn">Voeding opslaan</button>
+  </div>
+
+  <!-- today -->
+  <div class="card">
+    <h2>Vandaag <small id="todayDate"></small></h2>
+    <div id="todayList"><div class="empty">Nog geen voedingen vandaag</div></div>
+    <div class="totals">
+      <div class="tot"><b id="totCount">0</b><span>voedingen</span></div>
+      <div class="tot"><b id="totMl">0</b><span>ml totaal</span></div>
+      <div class="tot"><b id="totAvg">–</b><span>ml gemiddeld</span></div>
+    </div>
+  </div>
+
+  <!-- chart -->
+  <div class="card">
+    <h2>Afgelopen 7 dagen <small>per voeding</small></h2>
+    <div class="legend">
+      <span><i style="background:var(--mm)"></i> Moedermelk</span>
+      <span><i style="background:var(--fv)"></i> Flesvoeding</span>
+    </div>
+    <div class="chart" id="chart"></div>
+    <div class="daydetail" id="daydetail"></div>
+  </div>
+
+</div>
+
+<!-- settings -->
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet">
+  <h3>Instellingen</h3>
+  <p>Verbind beide telefoons met dezelfde database, dan zien jullie elkaars voedingen direct.</p>
+  <label for="setName">Naam baby</label>
+  <input type="text" id="setName" placeholder="Sammy">
+  <label for="setDb">Database-adres (Firebase URL)</label>
+  <input type="url" id="setDb" placeholder="https://jouw-project-default-rtdb.europe-west1.firebasedatabase.app" autocapitalize="off" autocorrect="off">
+  <div class="connmsg" id="connmsg"></div>
+  <button class="sharebtn" id="shareBtn" style="display:none">Kopieer link voor Marjo (verbindt automatisch)</button>
+  <div class="sheetbtns">
+    <button class="b-ghost" id="closeSheet">Sluiten</button>
+    <button class="b-primary" id="saveSettings">Opslaan</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Opgeslagen</div>
+
+<script type="module">
+/* ============================================================
+   Sammy · Voedingen — single-file app
+   Sync: Firebase Realtime Database (gratis Spark-plan)
+   Zonder database-URL werkt de app lokaal op dit toestel.
+   ============================================================ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, set, get }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* Wordt automatisch ingevuld via instellingen of #db= link. */
+const BAKED_DB_URL = "https://sammy-voedingen-default-rtdb.europe-west1.firebasedatabase.app";
+
+const $ = id => document.getElementById(id);
+const DAYS = ["zo","ma","di","wo","do","vr","za"];
+const MONTHS = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+
+let feeds = {};            // id -> {t, ml, type}
+let db = null, feedsRef = null, nameRef = null;
+let selectedDay = dayKey(new Date());
+let curType = "mm";
+
+/* ---------- helpers ---------- */
+function pad(n){ return String(n).padStart(2,"0"); }
+function dayKey(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function feedDate(f){ return new Date(f.t); }
+function fmtAgo(ms){
+  const m = Math.floor(ms/60000);
+  if (m < 1) return "zojuist";
+  const h = Math.floor(m/60);
+  if (h < 1) return m + " min";
+  return h + " u " + (m % 60) + " min";
+}
+function toast(msg){
+  $("toast").textContent = msg;
+  $("toast").classList.add("show");
+  setTimeout(()=>$("toast").classList.remove("show"), 2200);
+}
+
+/* ---------- storage: firebase of lokaal ---------- */
+function getDbUrl(){
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("db")) {
+    localStorage.setItem("dbUrl", h.get("db"));
+    history.replaceState(null, "", location.pathname);
+  }
+  return localStorage.getItem("dbUrl") || BAKED_DB_URL || "";
+}
+
+function localLoad(){
+  try { return JSON.parse(localStorage.getItem("feedsLocal") || "{}"); }
+  catch(e){ return {}; }
+}
+function localSave(){ localStorage.setItem("feedsLocal", JSON.stringify(feeds)); }
+
+function connect(url){
+  try {
+    const app = initializeApp({ databaseURL: url }, "sammy-" + Date.now());
+    db = getDatabase(app);
+    feedsRef = ref(db, "voedingen");
+    nameRef  = ref(db, "meta/naam");
+
+    onValue(feedsRef, snap => {
+      feeds = snap.val() || {};
+      render();
+      /* eerste keer verbonden: lokale voedingen meenemen */
+      const loc = localLoad();
+      const ids = Object.keys(loc);
+      if (ids.length) {
+        ids.forEach(id => push(feedsRef, loc[id]));
+        localStorage.removeItem("feedsLocal");
+        toast("Lokale voedingen gesynchroniseerd");
+      }
+    }, err => {
+      $("connmsg").textContent = "Kan niet verbinden: controleer de URL en de regels.";
+      $("connmsg").className = "connmsg err";
+    });
+
+    onValue(nameRef, snap => {
+      const n = snap.val();
+      if (n) { $("babyName").textContent = n; $("setName").value = n; document.title = n + " · Voedingen"; }
+    });
+
+    $("banner").classList.remove("show");
+    $("shareBtn").style.display = "block";
+    return true;
+  } catch(e) {
+    $("connmsg").textContent = "Ongeldige URL. Plak de volledige database-URL (begint met https://).";
+    $("connmsg").className = "connmsg err";
+    return false;
+  }
+}
+
+function addFeed(f){
+  if (feedsRef) { push(feedsRef, f); }
+  else {
+    feeds["l" + Date.now()] = f;
+    localSave(); render();
+  }
+}
+function deleteFeed(id){
+  if (feedsRef) { remove(ref(db, "voedingen/" + id)); }
+  else { delete feeds[id]; localSave(); render(); }
+}
+
+/* ---------- form ---------- */
+function setNow(){
+  const n = new Date();
+  $("inTime").value = pad(n.getHours()) + ":" + pad(n.getMinutes());
+  $("inDate").value = dayKey(n);
+}
+function setType(t){
+  curType = t;
+  $("btnMM").className = t === "mm" ? "on-mm" : "";
+  $("btnFV").className = t === "fv" ? "on-fv" : "";
+}
+$("btnMM").onclick = () => setType("mm");
+$("btnFV").onclick = () => setType("fv");
+
+function setMl(v){
+  v = Math.max(5, Math.min(400, v));
+  $("mlVal").textContent = v;
+  document.querySelectorAll("#chips button").forEach(b =>
+    b.classList.toggle("sel", Number(b.dataset.ml) === v));
+}
+function getMl(){ return Number($("mlVal").textContent); }
+$("mlMinus").onclick = () => setMl(getMl() - 5);
+$("mlPlus").onclick  = () => setMl(getMl() + 5);
+document.querySelectorAll("#chips button").forEach(b =>
+  b.onclick = () => setMl(Number(b.dataset.ml)));
+
+$("saveBtn").onclick = () => {
+  const t = $("inTime").value, d = $("inDate").value;
+  if (!t || !d) { toast("Vul tijd en datum in"); return; }
+  addFeed({ t: d + "T" + t, ml: getMl(), type: curType });
+  localStorage.setItem("lastMl", getMl());
+  localStorage.setItem("lastType", curType);
+  const btn = $("saveBtn");
+  btn.textContent = "Opgeslagen ✓"; btn.classList.add("saved");
+  setTimeout(()=>{ btn.textContent = "Voeding opslaan"; btn.classList.remove("saved"); }, 1400);
+  setNow();
+};
+
+/* ---------- render ---------- */
+function feedsOfDay(key){
+  return Object.entries(feeds)
+    .map(([id,f]) => ({id, ...f}))
+    .filter(f => f.t && f.t.slice(0,10) === key)
+    .sort((a,b) => a.t.localeCompare(b.t));
+}
+
+function render(){
+  const now = new Date();
+  const todayKey = dayKey(now);
+  const today = feedsOfDay(todayKey);
+
+  /* header */
+  const totMl = today.reduce((s,f)=>s+Number(f.ml||0),0);
+  $("todaySub").textContent = today.length
+    ? today.length + (today.length===1?" voeding":" voedingen") + " · " + totMl + " ml vandaag"
+    : "nog geen voedingen vandaag";
+  $("todayDate").textContent = now.getDate() + " " + MONTHS[now.getMonth()];
+
+  /* last feed */
+  const all = Object.entries(feeds).map(([id,f])=>({id,...f}))
+    .filter(f=>f.t).sort((a,b)=>a.t.localeCompare(b.t));
+  const last = all[all.length-1];
+  if (last && feedDate(last) <= now) {
+    $("lastfeed").style.display = "flex";
+    $("lfAgo").textContent = fmtAgo(now - feedDate(last));
+    $("lfMl").textContent = last.ml + " ml " + (last.type==="mm"?"moedermelk":"flesvoeding");
+    $("lfDot").style.background = last.type==="mm" ? "var(--mm)" : "var(--fv)";
+  } else {
+    $("lastfeed").style.display = "none";
+  }
+
+  /* today list */
+  const list = $("todayList");
+  if (!today.length) {
+    list.innerHTML = '<div class="empty">Nog geen voedingen vandaag</div>';
+  } else {
+    list.innerHTML = "";
+    [...today].reverse().forEach(f => {
+      const row = document.createElement("div");
+      row.className = "feed";
+      row.innerHTML =
+        '<div class="tdot ' + f.type + '">' + (f.type==="mm" ? "🤱" : "🍼") + '</div>' +
+        '<div class="info"><div class="time">' + f.t.slice(11,16) + '</div>' +
+        '<div class="meta">' + (f.type==="mm"?"Moedermelk":"Flesvoeding") + '</div></div>' +
+        '<div class="ml">' + f.ml + ' <small>ml</small></div>';
+      const del = document.createElement("button");
+      del.className = "del"; del.textContent = "✕";
+      del.onclick = () => {
+        if (del.classList.contains("arm")) deleteFeed(f.id);
+        else {
+          del.classList.add("arm"); del.textContent = "zeker?";
+          setTimeout(()=>{ del.classList.remove("arm"); del.textContent = "✕"; }, 2500);
+        }
+      };
+      row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+  $("totCount").textContent = today.length;
+  $("totMl").textContent = totMl;
+  $("totAvg").textContent = today.length ? Math.round(totMl/today.length) : "–";
+
+  renderChart();
+}
+
+function renderChart(){
+  const chart = $("chart");
+  chart.innerHTML = "";
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push({ key: dayKey(d), d });
+  }
+  const maxTotal = Math.max(200, ...days.map(day =>
+    feedsOfDay(day.key).reduce((s,f)=>s+Number(f.ml||0),0)));
+
+  days.forEach(day => {
+    const fs = feedsOfDay(day.key);
+    const col = document.createElement("div");
+    col.className = "daycol" + (day.key === selectedDay ? " seld" : "");
+    const cnt = document.createElement("div");
+    cnt.className = "cnt";
+    cnt.textContent = fs.length ? fs.length + "×" : "";
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    fs.forEach(f => {
+      const seg = document.createElement("div");
+      seg.className = "seg " + f.type;
+      seg.style.height = Math.max(3, (Number(f.ml||0) / maxTotal) * 100) + "%";
+      bar.appendChild(seg);
+    });
+    const lab = document.createElement("div");
+    lab.className = "dlab";
+    lab.textContent = day.key === dayKey(new Date()) ? "nu" : DAYS[day.d.getDay()];
+    col.append(cnt, bar, lab);
+    col.onclick = () => { selectedDay = day.key; renderChart(); };
+    chart.appendChild(col);
+  });
+
+  /* day detail */
+  const fs = feedsOfDay(selectedDay);
+  const dd = new Date(selectedDay + "T12:00");
+  const label = DAYS[dd.getDay()] + " " + dd.getDate() + " " + MONTHS[dd.getMonth()];
+  if (!fs.length) {
+    $("daydetail").innerHTML = "<b>" + label + "</b> · geen voedingen";
+  } else {
+    const tot = fs.reduce((s,f)=>s+Number(f.ml||0),0);
+    const nmm = fs.filter(f=>f.type==="mm").length;
+    const nfv = fs.filter(f=>f.type==="fv").length;
+    const parts = [];
+    if (nmm) parts.push(nmm + "× moedermelk");
+    if (nfv) parts.push(nfv + "× flesvoeding");
+    $("daydetail").innerHTML =
+      "<b>" + label + "</b> · <b>" + fs.length + "</b> " + (fs.length===1?"voeding":"voedingen") + " · <b>" + tot + " ml</b> totaal<br>" +
+      parts.join(" · ") + " · gem. " + Math.round(tot/fs.length) + " ml per voeding";
+  }
+}
+
+/* ---------- settings ---------- */
+function openSheet(){
+  $("setDb").value = localStorage.getItem("dbUrl") || BAKED_DB_URL || "";
+  $("connmsg").textContent = ""; $("connmsg").className = "connmsg";
+  $("overlay").classList.add("show"); $("sheet").classList.add("show");
+}
+function closeSheet(){ $("overlay").classList.remove("show"); $("sheet").classList.remove("show"); }
+$("gearBtn").onclick = openSheet;
+$("bannerBtn").onclick = openSheet;
+$("overlay").onclick = closeSheet;
+$("closeSheet").onclick = closeSheet;
+
+$("saveSettings").onclick = () => {
+  const url = $("setDb").value.trim().replace(/\/+$/, "");
+  const name = $("setName").value.trim();
+  if (url) {
+    localStorage.setItem("dbUrl", url);
+    if (connect(url)) {
+      $("connmsg").textContent = "Verbonden ✓"; $("connmsg").className = "connmsg ok";
+      if (name && nameRef) set(nameRef, name);
+      setTimeout(closeSheet, 900);
+    }
+  } else {
+    if (name) { $("babyName").textContent = name; document.title = name + " · Voedingen"; }
+    closeSheet();
+  }
+  if (name && !url) localStorage.setItem("babyName", name);
+};
+
+$("shareBtn").onclick = async () => {
+  const url = location.origin + location.pathname + "#db=" +
+    encodeURIComponent(localStorage.getItem("dbUrl") || BAKED_DB_URL);
+  try {
+    if (navigator.share) { await navigator.share({ title: "Voedingen app", url }); }
+    else { await navigator.clipboard.writeText(url); toast("Link gekopieerd"); }
+  } catch(e) { /* geannuleerd */ }
+};
+
+/* ---------- start ---------- */
+setNow();
+setMl(Number(localStorage.getItem("lastMl")) || 120);
+setType(localStorage.getItem("lastType") || "mm");
+const savedName = localStorage.getItem("babyName");
+if (savedName) { $("babyName").textContent = savedName; $("setName").value = savedName; }
+
+const dbUrl = getDbUrl();
+if (dbUrl) { connect(dbUrl); }
+else {
+  feeds = localLoad();
+  $("banner").classList.add("show");
+  render();
+}
+setInterval(render, 60000); /* 'x min geleden' actueel houden */
+</script>
+</body>
+</html>
