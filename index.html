@@ -222,6 +222,57 @@
   .mmtile{box-shadow:var(--shadow),inset 0 3px 0 var(--mm)}
   .fvtile{box-shadow:var(--shadow),inset 0 3px 0 var(--fv)}
 
+  /* ---------- status-pil ---------- */
+  .statuspill{display:none;align-items:center;gap:10px;width:100%;background:var(--card);border:none;
+    border-radius:18px;box-shadow:var(--shadow);padding:13px 16px;margin-bottom:14px;cursor:pointer;
+    font:inherit;font-weight:700;font-size:13.5px;color:var(--ink-soft);text-align:left}
+  .statuspill.on{display:flex}
+  .statuspill .sdot{width:10px;height:10px;border-radius:50%;background:var(--fv);flex:none}
+  .statuspill.warn .sdot{background:#E3A24C}
+  .statuspill.warn{color:#8A6A35}
+
+  /* ---------- gids-pagina ---------- */
+  .page{position:fixed;inset:0;background:var(--bg);z-index:30;overflow-y:auto;display:none;
+    padding:max(env(safe-area-inset-top),14px) 16px calc(env(safe-area-inset-bottom) + 40px);
+    background-image:radial-gradient(600px 400px at 85% -50px, rgba(224,142,136,.10), transparent 70%),
+      radial-gradient(500px 380px at -60px 30%, rgba(139,175,156,.10), transparent 70%)}
+  .page.show{display:block}
+  .pagehead{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 18px}
+  .pagehead h1{font-family:'Fraunces',serif;font-weight:700;font-size:30px;letter-spacing:-.5px}
+  .gnote{margin-top:12px;background:var(--bg);border-radius:14px;padding:11px 14px;
+    font-size:12.5px;font-weight:700;color:var(--ink-soft);line-height:1.55}
+  .ttitle{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:var(--ink-soft);margin:14px 0 8px}
+  .rtable{width:100%;border-collapse:collapse;font-size:12px}
+  .rtable th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+    color:#C9BBB0;padding:4px 6px 6px 0}
+  .rtable td{padding:7px 6px 7px 0;border-top:1px solid var(--line);font-weight:700;color:var(--ink-soft)}
+  .rtable td:first-child{color:var(--ink);font-weight:800}
+  .rtable tr.cur td{background:var(--fv-soft);color:var(--ink)}
+  .rtable tr.cur td:first-child{border-radius:8px 0 0 8px;padding-left:6px}
+  .rtable tr.cur td:last-child{border-radius:0 8px 8px 0}
+  .acc{border:none;background:var(--bg);width:100%;text-align:left;font:inherit;font-weight:800;
+    font-size:13.5px;color:var(--ink);border-radius:13px;padding:12px 14px;cursor:pointer;margin-top:8px;
+    display:flex;justify-content:space-between;align-items:center}
+  .acc .chev{transition:transform .25s;font-size:11px;color:var(--ink-soft)}
+  .acc.open .chev{transform:rotate(180deg)}
+  .accbody{display:none;padding:10px 6px 4px;font-size:13px;font-weight:600;color:var(--ink-soft);line-height:1.6}
+  .accbody.open{display:block}
+  .accbody b{color:var(--ink)}
+  .disclaimer{font-size:12px;font-weight:700;color:#C9BBB0;line-height:1.6;text-align:center;padding:6px 14px 20px}
+  .wrow{display:flex;align-items:center;gap:12px;padding:10px 2px;border-top:1px solid var(--line)}
+  .wrow:first-of-type{margin-top:12px}
+  .wrow .wd{flex:1;font-size:13px;font-weight:700;color:var(--ink-soft)}
+  .wrow .wg{font-family:'Fraunces',serif;font-weight:700;font-size:16px}
+
+  /* ---------- richtlijn-overlay ---------- */
+  .cmp{border:1.5px solid var(--line);background:none;font:inherit;font-weight:800;font-size:11.5px;
+    color:var(--ink-soft);border-radius:100px;padding:5px 12px;cursor:pointer}
+  .cmp.on{background:var(--fv);border-color:var(--fv);color:#fff}
+  .bar{position:relative}
+  .bandseg{position:absolute;left:-2px;right:-2px;background:rgba(139,175,156,.16);border-radius:6px;z-index:0}
+  .avgline{position:absolute;left:-2px;right:-2px;height:0;border-top:2px dashed rgba(139,175,156,.55);z-index:0}
+  .bar .seg{position:relative;z-index:1}
+
   /* ---------- settings sheet ---------- */
   .overlay{position:fixed;inset:0;background:rgba(70,54,46,.35);display:none;z-index:40;backdrop-filter:blur(2px)}
   .overlay.show{display:block}
@@ -246,8 +297,9 @@
 
   .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);
     background:var(--ink);color:#FFF7EE;font-size:14px;font-weight:800;padding:12px 22px;border-radius:100px;
-    z-index:60;transition:transform .3s;box-shadow:0 8px 24px rgba(70,54,46,.35);white-space:nowrap}
-  .toast.show{transform:translateX(-50%) translateY(0)}
+    z-index:60;transition:transform .3s,opacity .3s;box-shadow:0 8px 24px rgba(70,54,46,.35);white-space:nowrap;
+    opacity:0;pointer-events:none}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
   @keyframes pop{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
   .card,.lastfeed,header{animation:pop .5s cubic-bezier(.2,.8,.3,1) both}
@@ -272,9 +324,14 @@
         <div class="sub" id="todaySub">nog geen voedingen vandaag</div>
       </div>
     </div>
+    <div style="display:flex;gap:2px">
+    <button class="gear" id="gidsBtn" aria-label="Gids">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </button>
     <button class="gear" id="gearBtn" aria-label="Instellingen">
       <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
+    </div>
   </header>
 
   <div class="banner" id="banner">
@@ -286,6 +343,10 @@
     <div class="dot" id="lfDot"></div>
     <span>Laatste voeding <b id="lfAgo"></b> geleden · <b id="lfMl"></b></span>
   </div>
+
+  <button class="statuspill" id="statusPill" type="button">
+    <span class="sdot"></span><span id="statusText"></span>
+  </button>
 
   <!-- add feeding -->
   <div class="card">
@@ -357,7 +418,7 @@
 
   <!-- grafieken -->
   <div class="card">
-    <h2>Overzicht <small>swipe voor meer →</small></h2>
+    <h2>Overzicht <button class="cmp" id="cmpToggle" type="button">toon richtlijn</button></h2>
     <div class="legend">
       <span><i style="background:var(--mm)"></i> Moedermelk</span>
       <span><i style="background:var(--fv)"></i> Flesvoeding</span>
@@ -390,10 +451,61 @@
         <div class="chart" id="chartSplit"></div>
         <div class="daydetail" id="splitdetail"></div>
       </section>
+      <section class="slide">
+        <h3>Gewicht · richtlijn +150–200 g per week</h3>
+        <div id="chartWeight"></div>
+        <div class="daydetail" id="weightdetail"></div>
+      </section>
     </div>
-    <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
+    <div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i></div>
   </div>
 
+</div>
+
+<!-- gids -->
+<div class="page" id="gidsPage">
+  <div class="wrap">
+    <div class="pagehead">
+      <h1>Gids</h1>
+      <button class="gear" id="closeGids" aria-label="Sluiten" style="font-size:19px;font-weight:700">✕</button>
+    </div>
+
+    <div class="card">
+      <h2 id="gName">Sammy</h2>
+      <div class="totals">
+        <div class="tot"><b id="gAge">–</b><span>oud</span></div>
+        <div class="tot"><b id="gWeight">–</b><span>laatste gewicht</span></div>
+      </div>
+      <div class="daydetail" id="gTarget" style="margin-top:12px"></div>
+      <div class="gnote">Sammy krijgt moedermelk én flesvoeding uit de fles: tel alles bij elkaar op voor het dagtotaal. Vuistregel: niet standaard meer dan ~200 ml in één fles.</div>
+    </div>
+
+    <div class="card">
+      <h2>Gewicht <small>van het consultatiebureau</small></h2>
+      <div class="row2">
+        <div class="field"><label for="wDate">Datum</label><input type="date" id="wDate"></div>
+        <div class="field"><label for="wGrams">Gram</label><input type="number" id="wGrams" placeholder="4250" inputmode="numeric"></div>
+      </div>
+      <button class="save" id="wSave">Gewicht opslaan</button>
+      <div id="wList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Richtlijn per leeftijd <small>per 24 uur</small></h2>
+      <h3 class="ttitle">Flesvoeding</h3>
+      <table class="rtable" id="tblFormula"></table>
+      <h3 class="ttitle">Moedermelk (afgekolfd)</h3>
+      <table class="rtable" id="tblBreast"></table>
+      <div class="gnote">Opvallend maar normaal: moedermelk-volume stijgt na maand 1 nauwelijks meer (plateau rond ~750 ml per dag), flesvoeding klimt wél door. Gezonde baby's zitten overal binnen deze bandbreedtes, ook aan de randen.</div>
+    </div>
+
+    <div class="card">
+      <h2>Goed om te weten</h2>
+      <div id="accWrap"></div>
+    </div>
+
+    <p class="disclaimer">Dit is een hulpmiddel, geen medisch advies. Gezonde baby's wijken vaak af van deze cijfers; de echte graadmeter is groei, gemeten door het consultatiebureau. Twijfel je? Gewoon even bellen.</p>
+  </div>
 </div>
 
 <!-- settings -->
@@ -403,6 +515,8 @@
   <p>Verbind beide telefoons met dezelfde database, dan zien jullie elkaars voedingen direct.</p>
   <label for="setName">Naam baby</label>
   <input type="text" id="setName" placeholder="Sammy">
+  <label for="setBirth">Geboortedatum</label>
+  <input type="date" id="setBirth">
   <label for="setDb">Database-adres (Firebase URL)</label>
   <input type="url" id="setDb" placeholder="https://jouw-project-default-rtdb.europe-west1.firebasedatabase.app" autocapitalize="off" autocorrect="off">
   <div class="connmsg" id="connmsg"></div>
@@ -461,10 +575,64 @@ const DAYS = ["zo","ma","di","wo","do","vr","za"];
 const MONTHS = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
 
 let feeds = {};            // id -> {t, ml, type}
-let db = null, feedsRef = null, nameRef = null;
+let weights = {};          // id -> {d, g}
+let db = null, feedsRef = null, nameRef = null, birthRef = null, weightsRef = null;
 let selectedDay = dayKey(new Date());
 let curType = "mm";
 let viewOffset = 0;        // 0 = vandaag, 1 = gisteren, ...
+let birthDate = "2026-06-28";
+let compareOn = false;
+
+/* ---------- richtlijndata (AAP/CDC/WHO/Voedingscentrum, per 24u, ml) ---------- */
+const AGES = ["0–1 wk","2 wk","1 mnd","2 mnd","3 mnd","4 mnd","5 mnd","6 mnd"];
+const REF_F = [ /* flesvoeding */
+  {f:[8,12],pf:[15,70], d:[150,500], da:350},
+  {f:[8,10],pf:[30,90], d:[350,700], da:525},
+  {f:[6,8], pf:[60,150],d:[450,900], da:675},
+  {f:[5,7], pf:[90,180],d:[550,950], da:775},
+  {f:[5,6], pf:[90,210],d:[600,950], da:825},
+  {f:[4,6], pf:[120,210],d:[600,1000],da:850},
+  {f:[4,5], pf:[120,240],d:[650,1000],da:875},
+  {f:[4,5], pf:[150,240],d:[700,1000],da:875}
+];
+const REF_B = [ /* moedermelk */
+  {f:[8,12],pf:null,d:null},
+  {f:[8,12],pf:75, d:[350,750]},
+  {f:[8,10],pf:100,d:[500,800]},
+  {f:[7,9], pf:115,d:[570,850]},
+  {f:[6,8], pf:120,d:[600,900]},
+  {f:[6,8], pf:125,d:[600,900]},
+  {f:[5,7], pf:125,d:[600,900]},
+  {f:[5,7], pf:130,d:[570,900]}
+];
+function ageDaysAt(date){ return Math.floor((date - new Date(birthDate + "T00:00")) / 864e5); }
+function ageIdx(days){
+  if (days <= 10) return 0;
+  if (days <= 21) return 1;
+  if (days <= 45) return 2;
+  if (days <= 75) return 3;
+  if (days <= 105) return 4;
+  if (days <= 135) return 5;
+  if (days <= 165) return 6;
+  return 7;
+}
+function ageLabel(days){
+  if (days < 0) return "nog niet geboren";
+  if (days < 70) {
+    const w = Math.floor(days/7), r = days%7;
+    return w === 0 ? days + " dagen" : w + " wk" + (r ? " " + r + " d" : "");
+  }
+  return Math.round(days/30.4 * 2) / 2 + " mnd";
+}
+function latestWeight(){
+  const ws = Object.entries(weights).map(([id,w])=>({id,...w})).filter(w=>w.d && w.g)
+    .sort((a,b)=>a.d.localeCompare(b.d));
+  return ws.length ? ws[ws.length-1] : null;
+}
+function sortedWeights(){
+  return Object.entries(weights).map(([id,w])=>({id,...w})).filter(w=>w.d && w.g)
+    .sort((a,b)=>a.d.localeCompare(b.d));
+}
 
 /* ---------- helpers ---------- */
 function pad(n){ return String(n).padStart(2,"0"); }
@@ -524,7 +692,19 @@ function connect(url){
 
     onValue(nameRef, snap => {
       const n = snap.val();
-      if (n) { $("babyName").textContent = n; $("setName").value = n; document.title = n + " · Voedingen"; }
+      if (n) { $("babyName").textContent = n; $("setName").value = n; $("gName").textContent = n; document.title = n + " · Voedingen"; }
+    });
+
+    birthRef = ref(db, "meta/geboortedatum");
+    onValue(birthRef, snap => {
+      const b = snap.val();
+      if (b) { birthDate = b; $("setBirth").value = b; render(); renderGids(); }
+    });
+
+    weightsRef = ref(db, "meta/gewichten");
+    onValue(weightsRef, snap => {
+      weights = snap.val() || {};
+      render(); renderGids();
     });
 
     $("banner").classList.remove("show");
@@ -551,6 +731,22 @@ function deleteFeed(id){
 function updateFeed(id, f){
   if (feedsRef) { set(ref(db, "voedingen/" + id), f); }
   else { feeds[id] = f; localSave(); render(); }
+}
+function addWeight(w){
+  if (weightsRef) { push(weightsRef, w); }
+  else {
+    weights["w" + Date.now()] = w;
+    localStorage.setItem("weightsLocal", JSON.stringify(weights));
+    render(); renderGids();
+  }
+}
+function deleteWeight(id){
+  if (weightsRef) { remove(ref(db, "meta/gewichten/" + id)); }
+  else {
+    delete weights[id];
+    localStorage.setItem("weightsLocal", JSON.stringify(weights));
+    render(); renderGids();
+  }
 }
 
 /* ---------- form ---------- */
@@ -644,6 +840,8 @@ function render(){
     $("lastfeed").style.display = "none";
   }
 
+  updateStatus(all);
+
   /* lijst van de bekeken dag */
   const list = $("todayList");
   if (!shown.length) {
@@ -698,6 +896,106 @@ function renderCharts(){
   renderTodayChart();
   renderWeekChart();
   renderSplitChart();
+  renderWeightChart();
+}
+
+/* ---------- status-indicator (zacht, nooit alarmerend) ---------- */
+function updateStatus(allFeeds){
+  const pill = $("statusPill");
+  if (!allFeeds.length) { pill.classList.remove("on"); return; }
+  pill.classList.add("on");
+  const todayDays = ageDaysAt(new Date());
+
+  /* dagtotalen van gisteren t/m 5 dagen terug (vandaag is nog niet compleet) */
+  const days = [];
+  for (let i = 1; i <= 5; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const fs = feedsOfDay(dayKey(d));
+    const band = REF_F[ageIdx(ageDaysAt(d))].d;
+    days.push(fs.length ? { tot: fs.reduce((s,f)=>s+Number(f.ml||0),0), band } : null);
+  }
+  /* 3 opeenvolgende dagen met data buiten de band? (groeispurts van 2-4 dagen slaan we over) */
+  let low = false, high = false;
+  for (let s = 0; s <= 2; s++) {
+    const trio = [days[s], days[s+1], days[s+2]];
+    if (trio.every(d => d && d.tot < d.band[0])) low = true;
+    if (trio.every(d => d && d.tot > d.band[1])) high = true;
+  }
+  const bigBottle = feedsOfDay(dayKey(new Date())).some(f => Number(f.ml||0) > 200);
+
+  let warn = false, text;
+  if (low) {
+    warn = true;
+    text = "Dagtotalen al een paar dagen aan de lage kant · vaak prima, maar iets om te noemen bij het consultatiebureau";
+  } else if (high) {
+    warn = true;
+    text = "Dagtotalen al een paar dagen aan de hoge kant · vaak prima, maar iets om te noemen bij het consultatiebureau";
+  } else if (bigBottle) {
+    warn = true;
+    text = "Fles van meer dan 200 ml gezien vandaag · richtlijn is max ~200 ml per fles";
+  } else {
+    const dataDays = days.filter(d => d).length;
+    text = dataDays >= 3
+      ? "Op schema volgens de richtlijnen · tik voor de gids"
+      : ($("babyName").textContent + " is " + ageLabel(todayDays) + " oud · tik voor de gids");
+  }
+  pill.classList.toggle("warn", warn);
+  $("statusText").textContent = text;
+}
+
+/* ---------- grafiek 4: gewicht ---------- */
+function renderWeightChart(){
+  const el = $("chartWeight");
+  const ws = sortedWeights();
+  if (!ws.length) {
+    el.innerHTML = '<div class="chart-empty">Nog geen gewichten · voeg toe via de gids (boekje rechtsboven)</div>';
+    $("weightdetail").innerHTML = "";
+    return;
+  }
+  const W = 320, H = 170, padL = 6, padR = 6, padT = 14, padB = 22;
+  const birth = new Date(birthDate + "T00:00");
+  const t0 = birth.getTime();
+  const tFirst = new Date(ws[0].d + "T00:00").getTime();
+  const t1 = Math.max(Date.now(), new Date(ws[ws.length-1].d + "T00:00").getTime()) + 3 * 864e5;
+  const weeksSpan = (t1 - tFirst) / (7 * 864e5);
+  const g0 = Number(ws[0].g);
+  const bandLoEnd = g0 + 150 * weeksSpan;
+  const bandHiEnd = g0 + 200 * weeksSpan;
+  const gMin = Math.min(...ws.map(w=>Number(w.g))) - 150;
+  const gMax = Math.max(bandHiEnd, ...ws.map(w=>Number(w.g))) + 150;
+  const X = t => padL + ((t - t0) / (t1 - t0)) * (W - padL - padR);
+  const Y = g => padT + (1 - (g - gMin) / (gMax - gMin)) * (H - padT - padB);
+
+  /* richtlijnband vanaf eerste weging */
+  const bx0 = X(tFirst), bx1 = X(t1);
+  let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:190px" xmlns="http://www.w3.org/2000/svg">';
+  svg += '<polygon points="' + bx0 + ',' + Y(g0) + ' ' + bx1 + ',' + Y(bandLoEnd) + ' ' + bx1 + ',' + Y(bandHiEnd) + '" fill="rgba(139,175,156,.16)"/>';
+  /* lijn + punten */
+  const pts = ws.map(w => X(new Date(w.d + "T00:00").getTime()) + "," + Y(Number(w.g))).join(" ");
+  if (ws.length > 1) svg += '<polyline points="' + pts + '" fill="none" stroke="#E08E88" stroke-width="2.5" stroke-linejoin="round"/>';
+  ws.forEach(w => {
+    const x = X(new Date(w.d + "T00:00").getTime()), y = Y(Number(w.g));
+    svg += '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="#E08E88" stroke="#fff" stroke-width="2"/>';
+    svg += '<text x="' + x + '" y="' + (y - 9) + '" text-anchor="middle" font-size="9.5" font-weight="800" fill="#8A7A6E" font-family="Nunito,sans-serif">' + (Number(w.g)/1000).toFixed(2).replace(".",",") + '</text>';
+  });
+  /* as */
+  svg += '<line x1="' + padL + '" y1="' + (H-padB) + '" x2="' + (W-padR) + '" y2="' + (H-padB) + '" stroke="#EFE3D5" stroke-width="2"/>';
+  svg += '<text x="' + padL + '" y="' + (H-7) + '" font-size="9.5" font-weight="800" fill="#C9BBB0" font-family="Nunito,sans-serif">geboorte</text>';
+  svg += '<text x="' + (W-padR) + '" y="' + (H-7) + '" text-anchor="end" font-size="9.5" font-weight="800" fill="#C9BBB0" font-family="Nunito,sans-serif">nu</text>';
+  svg += '</svg>';
+  el.innerHTML = svg;
+
+  const last = ws[ws.length-1];
+  let detail = "Laatst gewogen: <b>" + (Number(last.g)/1000).toFixed(2).replace(".",",") + " kg</b> op " + last.d.slice(8,10) + "-" + last.d.slice(5,7);
+  if (ws.length > 1) {
+    const prev = ws[ws.length-2];
+    const dDays = (new Date(last.d) - new Date(prev.d)) / 864e5;
+    if (dDays > 0) {
+      const perWeek = Math.round((Number(last.g) - Number(prev.g)) / dDays * 7);
+      detail += " · <b>" + (perWeek >= 0 ? "+" : "") + perWeek + " g</b> per week sinds vorige weging";
+    }
+  }
+  $("weightdetail").innerHTML = detail;
 }
 
 /* --- grafiek 1: vandaag als 24-uurs tijdlijn --- */
@@ -783,8 +1081,10 @@ function renderWeekChart(){
   const chart = $("chart");
   chart.innerHTML = "";
   const days = last7Days();
-  const maxTotal = Math.max(200, ...days.map(day =>
-    feedsOfDay(day.key).reduce((s,f)=>s+Number(f.ml||0),0)));
+  const bandFor = day => REF_F[ageIdx(ageDaysAt(day.d))].d;
+  const maxTotal = Math.max(200,
+    ...days.map(day => feedsOfDay(day.key).reduce((s,f)=>s+Number(f.ml||0),0)),
+    compareOn ? Math.max(...days.map(day => bandFor(day)[1])) : 0);
 
   days.forEach(day => {
     const fs = feedsOfDay(day.key);
@@ -795,6 +1095,19 @@ function renderWeekChart(){
     cnt.textContent = fs.length ? fs.length + "×" : "";
     const bar = document.createElement("div");
     bar.className = "bar";
+    if (compareOn) {
+      const band = bandFor(day);
+      const bs = document.createElement("div");
+      bs.className = "bandseg";
+      bs.style.bottom = (band[0] / maxTotal * 100) + "%";
+      bs.style.height = ((band[1] - band[0]) / maxTotal * 100) + "%";
+      bar.appendChild(bs);
+      const avg = REF_F[ageIdx(ageDaysAt(day.d))].da;
+      const al = document.createElement("div");
+      al.className = "avgline";
+      al.style.bottom = (avg / maxTotal * 100) + "%";
+      bar.appendChild(al);
+    }
     fs.forEach(f => {
       const seg = document.createElement("div");
       seg.className = "seg " + f.type;
@@ -825,6 +1138,11 @@ function renderWeekChart(){
     $("daydetail").innerHTML =
       "<b>" + label + "</b> · <b>" + fs.length + "</b> " + (fs.length===1?"voeding":"voedingen") + " · <b>" + tot + " ml</b> totaal<br>" +
       parts.join(" · ") + " · gem. " + Math.round(tot/fs.length) + " ml per voeding";
+  }
+  if (compareOn) {
+    const dd2 = new Date(selectedDay + "T12:00");
+    const r = REF_F[ageIdx(ageDaysAt(dd2))];
+    $("daydetail").innerHTML += "<br>richtlijn die dag: <b>" + r.d[0] + "–" + r.d[1] + " ml</b> · " + r.f[0] + "–" + r.f[1] + " voedingen";
   }
   const chips = $("daychips");
   chips.innerHTML = "";
@@ -945,6 +1263,101 @@ function updateListToggle(){
 }
 $("listToggle").onclick = () => { listOpen = !listOpen; updateListToggle(); };
 
+/* ---------- gids-pagina ---------- */
+function renderGids(){
+  const days = ageDaysAt(new Date());
+  const idx = ageIdx(days);
+  $("gAge").textContent = ageLabel(days);
+  const lw = latestWeight();
+  $("gWeight").textContent = lw ? (Number(lw.g)/1000).toFixed(2).replace(".",",") + " kg" : "–";
+
+  const r = REF_F[idx], rb = REF_B[idx];
+  let t = "Richtlijn voor nu (" + AGES[idx] + "): <b>" + r.f[0] + "–" + r.f[1] + " voedingen</b> per dag · " +
+    "<b>" + r.pf[0] + "–" + r.pf[1] + " ml</b> per voeding · totaal <b>" + r.d[0] + "–" + r.d[1] + " ml</b> per dag";
+  if (lw) {
+    const kg = Number(lw.g) / 1000;
+    const mlkg = days <= 90 ? 150 : 120;
+    t += "<br>Op basis van zijn gewicht: richtpunt ~<b>" + Math.round(kg * mlkg) + " ml</b> per dag (" + mlkg + " ml per kg)";
+  } else {
+    t += "<br>Voeg een gewicht toe voor een persoonlijk richtpunt (150 ml per kg per dag).";
+  }
+  $("gTarget").innerHTML = t;
+
+  /* tabellen */
+  const head = "<tr><th>Leeftijd</th><th>Voedingen</th><th>Per voeding</th><th>Per dag</th></tr>";
+  $("tblFormula").innerHTML = head + REF_F.map((x,i) =>
+    "<tr" + (i===idx ? ' class="cur"' : "") + "><td>" + AGES[i] + "</td><td>" + x.f[0] + "–" + x.f[1] +
+    "</td><td>" + x.pf[0] + "–" + x.pf[1] + " ml</td><td>" + x.d[0] + "–" + x.d[1] + " ml</td></tr>").join("");
+  $("tblBreast").innerHTML = head + REF_B.map((x,i) =>
+    "<tr" + (i===idx ? ' class="cur"' : "") + "><td>" + AGES[i] + "</td><td>" + x.f[0] + "–" + x.f[1] +
+    "</td><td>" + (x.pf ? "~" + x.pf + " ml" : "–") + "</td><td>" + (x.d ? x.d[0] + "–" + x.d[1] + " ml" : "komt op gang") + "</td></tr>").join("");
+
+  /* gewichtenlijst */
+  const ws = sortedWeights().reverse();
+  const list = $("wList");
+  list.innerHTML = "";
+  ws.forEach(w => {
+    const row = document.createElement("div");
+    row.className = "wrow";
+    row.innerHTML = '<div class="wd">' + w.d.slice(8,10) + "-" + w.d.slice(5,7) + "-" + w.d.slice(0,4) +
+      ' · ' + ageLabel(ageDaysAt(new Date(w.d + "T12:00"))) + ' oud</div>' +
+      '<div class="wg">' + (Number(w.g)/1000).toFixed(2).replace(".",",") + ' kg</div>';
+    const del = document.createElement("button");
+    del.className = "del"; del.textContent = "✕";
+    del.onclick = () => {
+      if (del.classList.contains("arm")) deleteWeight(w.id);
+      else {
+        del.classList.add("arm"); del.textContent = "zeker?";
+        setTimeout(()=>{ del.classList.remove("arm"); del.textContent = "✕"; }, 2500);
+      }
+    };
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+/* uitklapbare info-secties */
+const ACC = [
+  ["Hongersignalen", "Vroege signalen: smakken, zoeken met het mondje, handjes naar de mond, onrustig draaien. <b>Huilen is een láát signaal.</b> Voed op verzoek, niet op de klok, en dwing de fles nooit leeg — hij mag stoppen als hij klaar is."],
+  ["Signalen: krijgt hij genoeg?", "Let op een <b>combinatie</b> van: minder dan 6 natte luiers per dag (na week 1) · donkere urine · na dag 5 weinig ontlasting · rond dag 10–14 nog niet terug op geboortegewicht · trage groei (minder dan ~150–200 g per week) · erg slaperig of zwak drinken · zelden voldaan na een voeding. Meerdere tegelijk? Laat hem wegen en bel het consultatiebureau."],
+  ["Signalen: te veel (vooral bij de fles)", "Veel of grote spuugjes · klokkend drinken of verslikken · gespannen bolle buik, veel gas · huilen binnen een uur na de voeding · doordrinken terwijl hij afweert (wegdraaien, lipjes op elkaar, fles wegduwen) · gewicht ver boven de curve. Flesvoeding gaat sneller dan de borst; volg zijn vol-signalen in plaats van de fles leeg te maken."],
+  ["Direct contact opnemen", "<b>Projectielbraken</b> · groen of bloederig braaksel · tekenen van uitdroging (ingezonken fontanel, geen tranen, droge mond, sufheid) · bloed in de ontlasting · te zwak of te suf om te drinken. Dit is nooit \"afwachten\": bel de huisarts of het consultatiebureau."],
+  ["Groeispurts & weetjes", "Rond <b>~2–3 weken, ~6 weken en ~3 maanden</b> ineens veel vaker honger: normaal, duurt 2–4 dagen (de status-indicator slaat daar niet meteen op aan). Spuugje = zacht teruggeven, meestal onschuldig; overgeven = met kracht, dat is anders. <b>Vitamine D-druppels</b> blijven nodig zolang hij minder dan ~950 ml flesvoeding per dag drinkt — dus ook bij gemengd voeden. In de eerste weken: slaapt hij langer dan 4–5 uur langs een voeding heen, maak hem dan wakker."]
+];
+const accWrap = $("accWrap");
+ACC.forEach(([title, body]) => {
+  const btn = document.createElement("button");
+  btn.className = "acc";
+  btn.innerHTML = title + ' <span class="chev">▾</span>';
+  const bod = document.createElement("div");
+  bod.className = "accbody";
+  bod.innerHTML = body;
+  btn.onclick = () => { btn.classList.toggle("open"); bod.classList.toggle("open"); };
+  accWrap.append(btn, bod);
+});
+
+function openGids(){ renderGids(); $("gidsPage").classList.add("show"); }
+$("gidsBtn").onclick = openGids;
+$("statusPill").onclick = openGids;
+$("closeGids").onclick = () => $("gidsPage").classList.remove("show");
+
+/* gewicht opslaan */
+$("wSave").onclick = () => {
+  const d = $("wDate").value, g = Number($("wGrams").value);
+  if (!d || !g || g < 1000 || g > 15000) { toast("Vul datum en gewicht in gram in"); return; }
+  addWeight({ d, g });
+  $("wGrams").value = "";
+  toast("Gewicht opgeslagen");
+};
+
+/* richtlijn-overlay aan/uit */
+$("cmpToggle").onclick = () => {
+  compareOn = !compareOn;
+  $("cmpToggle").classList.toggle("on", compareOn);
+  $("cmpToggle").textContent = compareOn ? "richtlijn aan" : "toon richtlijn";
+  renderWeekChart();
+};
+
 /* ---------- dag-navigatie: pijltjes + swipe ---------- */
 $("prevDay").onclick = () => { viewOffset++; render(); };
 $("nextDay").onclick = () => { if (viewOffset > 0) { viewOffset--; render(); } };
@@ -987,6 +1400,13 @@ $("closeSheet").onclick = closeSheet;
 $("saveSettings").onclick = () => {
   const url = $("setDb").value.trim().replace(/\/+$/, "");
   const name = $("setName").value.trim();
+  const birth = $("setBirth").value;
+  if (birth && birth !== birthDate) {
+    birthDate = birth;
+    if (birthRef) set(birthRef, birth);
+    else localStorage.setItem("birthDate", birth);
+    render(); renderGids();
+  }
   if (url) {
     localStorage.setItem("dbUrl", url);
     if (connect(url)) {
@@ -1017,10 +1437,15 @@ setType(localStorage.getItem("lastType") || "mm");
 const savedName = localStorage.getItem("babyName");
 if (savedName) { $("babyName").textContent = savedName; $("setName").value = savedName; }
 
+birthDate = localStorage.getItem("birthDate") || birthDate;
+$("setBirth").value = birthDate;
+$("wDate").value = dayKey(new Date());
+
 const dbUrl = getDbUrl();
 if (dbUrl) { connect(dbUrl); }
 else {
   feeds = localLoad();
+  try { weights = JSON.parse(localStorage.getItem("weightsLocal") || "{}"); } catch(e){ weights = {}; }
   $("banner").classList.add("show");
   render();
 }
