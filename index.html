@@ -184,6 +184,17 @@
   .tl .fval{position:absolute;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--ink-soft)}
   .chart-empty{height:190px;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-weight:700;font-size:14px}
 
+  /* ---------- mm/fv race-balken (vandaag) ---------- */
+  .race{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+  .racerow{display:flex;align-items:center;gap:10px}
+  .racerow .rlab{flex:none;width:88px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+  .racerow .rtrack{flex:1;height:18px;background:var(--bg);border-radius:100px;overflow:hidden}
+  .racerow .rfill{height:100%;border-radius:100px;min-width:8px;width:0;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+  .racerow .rfill.mm{background:var(--mm)}
+  .racerow .rfill.fv{background:var(--fv)}
+  .racerow .rval{flex:none;width:60px;text-align:right;font-family:'Fraunces',serif;font-weight:700;font-size:15px}
+  .racerow .rval small{font-family:'Nunito',sans-serif;font-size:10px;color:var(--ink-soft);font-weight:800}
+
   /* ---------- mm/fv-grafiek ---------- */
   .splitpair{display:flex;gap:2px;width:100%;height:100%;align-items:flex-end}
   .splitpair div{flex:1;border-radius:5px 5px 2px 2px;min-height:3px;transition:height .4s cubic-bezier(.2,.8,.3,1)}
@@ -339,6 +350,18 @@
       <section class="slide">
         <h3>Vandaag, per voeding</h3>
         <div class="tl" id="chartToday"></div>
+        <div class="race">
+          <div class="racerow">
+            <div class="rlab">Moedermelk</div>
+            <div class="rtrack"><div class="rfill mm" id="raceMM"></div></div>
+            <div class="rval"><span id="raceMMval">0</span> <small>ml</small></div>
+          </div>
+          <div class="racerow">
+            <div class="rlab">Flesvoeding</div>
+            <div class="rtrack"><div class="rfill fv" id="raceFV"></div></div>
+            <div class="rval"><span id="raceFVval">0</span> <small>ml</small></div>
+          </div>
+        </div>
       </section>
       <section class="slide">
         <h3>Afgelopen 7 dagen</h3>
@@ -664,6 +687,16 @@ function renderTodayChart(){
   const el = $("chartToday");
   el.innerHTML = "";
   const fs = feedsOfDay(dayKey(new Date()));
+
+  /* race-balken: totaal mm vs fv vandaag */
+  const mmMl = fs.filter(f=>f.type==="mm").reduce((s,f)=>s+Number(f.ml||0),0);
+  const fvMl = fs.filter(f=>f.type==="fv").reduce((s,f)=>s+Number(f.ml||0),0);
+  const lead = Math.max(mmMl, fvMl, 1);
+  $("raceMM").style.width = (mmMl / lead * 100) + "%";
+  $("raceFV").style.width = (fvMl / lead * 100) + "%";
+  $("raceMMval").textContent = mmMl;
+  $("raceFVval").textContent = fvMl;
+
   if (!fs.length) {
     el.innerHTML = '<div class="chart-empty">Nog geen voedingen vandaag</div>';
     return;
