@@ -152,6 +152,16 @@
   .navbtn:active{transform:scale(.92)}
   .navbtn:disabled{opacity:.25}
 
+  /* ---------- inklapbare lijst ---------- */
+  .listtoggle{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    border:none;background:var(--bg);border-radius:14px;padding:12px;cursor:pointer;
+    font:inherit;font-weight:800;font-size:13.5px;color:var(--ink-soft)}
+  .listtoggle:active{transform:scale(.985)}
+  .listtoggle .chev{display:inline-block;transition:transform .25s;font-size:12px}
+  .listwrap{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.2,.8,.3,1)}
+  .listwrap.open{max-height:2400px}
+  .listwrap #todayList{padding-top:6px}
+
   /* ---------- nu-knop ---------- */
   .fieldrow{display:flex;align-items:center;gap:8px}
   .fieldrow input{flex:1;min-width:0}
@@ -327,7 +337,13 @@
       </div>
       <button id="nextDay" class="navbtn" type="button" aria-label="volgende dag" disabled>›</button>
     </div>
-    <div id="todayList"><div class="empty">Nog geen voedingen vandaag</div></div>
+    <button class="listtoggle" id="listToggle" type="button">
+      <span id="listToggleText">Voedingen tonen</span>
+      <span class="chev" id="listChev">▾</span>
+    </button>
+    <div class="listwrap" id="listWrap">
+      <div id="todayList"><div class="empty">Nog geen voedingen vandaag</div></div>
+    </div>
     <div class="totals">
       <div class="tot"><b id="totCount">0</b><span>voedingen</span></div>
       <div class="tot"><b id="totMl">0</b><span>ml totaal</span></div>
@@ -658,6 +674,8 @@ function render(){
       list.appendChild(row);
     });
   }
+  lastShownCount = shown.length;
+  updateListToggle();
   $("totCount").textContent = shown.length;
   $("totMl").textContent = shownMl;
   $("totAvg").textContent = shown.length ? Math.round(shownMl/shown.length) : "–";
@@ -914,6 +932,18 @@ $("editDelete").onclick = () => {
     setTimeout(()=>{ del.classList.remove("arm"); del.textContent = "Verwijderen"; }, 3000);
   }
 };
+
+/* ---------- inklapbare voedingenlijst ---------- */
+let listOpen = false;       /* standaard dicht bij openen app */
+let lastShownCount = 0;
+function updateListToggle(){
+  $("listToggleText").textContent = listOpen
+    ? "Voedingen verbergen"
+    : (lastShownCount === 1 ? "1 voeding tonen" : lastShownCount + " voedingen tonen");
+  $("listChev").style.transform = listOpen ? "rotate(180deg)" : "";
+  $("listWrap").classList.toggle("open", listOpen);
+}
+$("listToggle").onclick = () => { listOpen = !listOpen; updateListToggle(); };
 
 /* ---------- dag-navigatie: pijltjes + swipe ---------- */
 $("prevDay").onclick = () => { viewOffset++; render(); };
