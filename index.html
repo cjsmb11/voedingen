@@ -158,14 +158,20 @@
   .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s}
   .dots i.on{background:var(--ink)}
 
-  /* ---------- dag-grafiek ---------- */
-  .daychart{display:flex;gap:8px;align-items:flex-end;height:190px;padding-top:6px}
-  .dbarcol{flex:1;max-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer}
-  .dbarcol .dval{font-size:10.5px;font-weight:800;color:var(--ink-soft);margin-bottom:4px}
-  .dbarcol .dbar{width:100%;max-width:30px;border-radius:7px;min-height:5px;transition:height .4s cubic-bezier(.2,.8,.3,1)}
-  .dbarcol .dbar.mm{background:var(--mm)}
-  .dbarcol .dbar.fv{background:var(--fv)}
-  .dbarcol .dtime{font-size:10.5px;font-weight:800;color:var(--ink-soft);margin-top:6px}
+  /* ---------- dag-tijdlijn ---------- */
+  .tl{position:relative;height:200px;margin-top:14px}
+  .tl .night{position:absolute;top:0;bottom:24px;background:rgba(70,54,46,.05);border-radius:10px}
+  .tl .night span{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:11px;opacity:.45}
+  .tl .axis{position:absolute;left:0;right:0;bottom:24px;height:2px;background:var(--line);border-radius:2px}
+  .tl .tick{position:absolute;bottom:0;transform:translateX(-50%);font-size:10px;font-weight:800;color:#C9BBB0}
+  .tl .nowline{position:absolute;top:14px;bottom:24px;width:0;border-left:2px dashed #DBC9B9}
+  .tl .nowlab{position:absolute;top:0;transform:translateX(-50%);font-size:9.5px;font-weight:800;color:#C0AD9B}
+  .tl .fbar{position:absolute;bottom:26px;width:13px;transform:translateX(-50%);border-radius:7px 7px 3px 3px;
+    cursor:pointer;min-height:8px;transition:height .4s cubic-bezier(.2,.8,.3,1);
+    box-shadow:0 2px 6px rgba(70,54,46,.18)}
+  .tl .fbar.mm{background:var(--mm)}
+  .tl .fbar.fv{background:var(--fv)}
+  .tl .fval{position:absolute;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--ink-soft)}
   .chart-empty{height:190px;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-weight:700;font-size:14px}
 
   /* ---------- mm/fv-grafiek ---------- */
@@ -315,7 +321,7 @@
     <div class="carousel" id="carousel">
       <section class="slide">
         <h3>Vandaag, per voeding</h3>
-        <div class="daychart" id="chartToday"></div>
+        <div class="tl" id="chartToday"></div>
       </section>
       <section class="slide">
         <h3>Afgelopen 7 dagen</h3>
@@ -623,7 +629,7 @@ function renderCharts(){
   renderSplitChart();
 }
 
-/* --- grafiek 1: vandaag, elke voeding een staaf --- */
+/* --- grafiek 1: vandaag als 24-uurs tijdlijn --- */
 function renderTodayChart(){
   const el = $("chartToday");
   el.innerHTML = "";
@@ -632,20 +638,62 @@ function renderTodayChart(){
     el.innerHTML = '<div class="chart-empty">Nog geen voedingen vandaag</div>';
     return;
   }
-  const max = Math.max(150, ...fs.map(f=>Number(f.ml||0)));
+  const pct = min => (min / 1440) * 100;
+
+  /* nachtvakken (00-06 en 20-24) */
+  [[0, 360], [1200, 1440]].forEach(([a, b]) => {
+    const n = document.createElement("div");
+    n.className = "night";
+    n.style.left = pct(a) + "%";
+    n.style.width = pct(b - a) + "%";
+    const moon = document.createElement("span");
+    moon.textContent = "🌙";
+    n.appendChild(moon);
+    el.appendChild(n);
+  });
+
+  /* as + uur-markeringen */
+  const axis = document.createElement("div");
+  axis.className = "axis";
+  el.appendChild(axis);
+  [0, 6, 12, 18, 24].forEach(h => {
+    const t = document.createElement("div");
+    t.className = "tick";
+    t.style.left = pct(h * 60) + "%";
+    if (h === 0) { t.style.left = "0"; t.style.transform = "none"; }
+    if (h === 24) { t.style.left = "auto"; t.style.right = "0"; t.style.transform = "none"; }
+    t.textContent = h + "u";
+    el.appendChild(t);
+  });
+
+  /* nu-lijn */
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const nl = document.createElement("div");
+  nl.className = "nowline";
+  nl.style.left = pct(nowMin) + "%";
+  const nlab = document.createElement("div");
+  nlab.className = "nowlab";
+  nlab.style.left = pct(nowMin) + "%";
+  nlab.textContent = "nu";
+  el.append(nl, nlab);
+
+  /* voedingen op hun tijdstip */
+  const max = Math.max(150, ...fs.map(f => Number(f.ml || 0)));
   fs.forEach(f => {
-    const col = document.createElement("div");
-    col.className = "dbarcol";
-    const val = document.createElement("div");
-    val.className = "dval"; val.textContent = f.ml;
+    const min = Number(f.t.slice(11,13)) * 60 + Number(f.t.slice(14,16));
+    const h = Math.max(10, (Number(f.ml || 0) / max) * 125);
     const bar = document.createElement("div");
-    bar.className = "dbar " + f.type;
-    bar.style.height = Math.max(5, (Number(f.ml||0) / max) * 130) + "px";
-    const tm = document.createElement("div");
-    tm.className = "dtime"; tm.textContent = f.t.slice(11,16);
-    col.append(val, bar, tm);
-    col.onclick = () => openEdit(f.id);
-    el.appendChild(col);
+    bar.className = "fbar " + f.type;
+    bar.style.left = pct(min) + "%";
+    bar.style.height = h + "px";
+    bar.onclick = () => openEdit(f.id);
+    const val = document.createElement("div");
+    val.className = "fval";
+    val.style.left = pct(min) + "%";
+    val.style.bottom = (26 + h + 5) + "px";
+    val.textContent = f.ml;
+    el.append(bar, val);
   });
 }
 
