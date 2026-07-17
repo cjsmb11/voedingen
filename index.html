@@ -142,6 +142,49 @@
   .daydetail{margin-top:14px;background:var(--bg);border-radius:14px;padding:11px 14px;font-size:13.5px;font-weight:700;color:var(--ink-soft);line-height:1.5;min-height:44px}
   .daydetail b{color:var(--ink)}
 
+  /* ---------- nu-knop ---------- */
+  .fieldrow{display:flex;align-items:center;gap:8px}
+  .fieldrow input{flex:1;min-width:0}
+  .nowbtn{border:none;background:var(--fv);color:#fff;font:inherit;font-weight:800;font-size:12px;
+    padding:7px 13px;border-radius:100px;cursor:pointer;flex:none}
+  .nowbtn:active{transform:scale(.94)}
+
+  /* ---------- grafiek-carousel ---------- */
+  .carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .carousel::-webkit-scrollbar{display:none}
+  .slide{flex:0 0 100%;min-width:100%;scroll-snap-align:start;scroll-snap-stop:always}
+  .slide h3{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--ink-soft);margin-bottom:10px}
+  .dots{display:flex;gap:7px;justify-content:center;margin-top:14px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s}
+  .dots i.on{background:var(--ink)}
+
+  /* ---------- dag-grafiek ---------- */
+  .daychart{display:flex;gap:8px;align-items:flex-end;height:190px;padding-top:6px}
+  .dbarcol{flex:1;max-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer}
+  .dbarcol .dval{font-size:10.5px;font-weight:800;color:var(--ink-soft);margin-bottom:4px}
+  .dbarcol .dbar{width:100%;max-width:30px;border-radius:7px;min-height:5px;transition:height .4s cubic-bezier(.2,.8,.3,1)}
+  .dbarcol .dbar.mm{background:var(--mm)}
+  .dbarcol .dbar.fv{background:var(--fv)}
+  .dbarcol .dtime{font-size:10.5px;font-weight:800;color:var(--ink-soft);margin-top:6px}
+  .chart-empty{height:190px;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-weight:700;font-size:14px}
+
+  /* ---------- mm/fv-grafiek ---------- */
+  .splitpair{display:flex;gap:2px;width:100%;height:100%;align-items:flex-end}
+  .splitpair div{flex:1;border-radius:5px 5px 2px 2px;min-height:3px;transition:height .4s cubic-bezier(.2,.8,.3,1)}
+
+  /* ---------- voeding-chips ---------- */
+  .fchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .fchip{border:none;font:inherit;font-weight:800;font-size:12px;padding:6px 11px;border-radius:100px;cursor:pointer;color:#fff}
+  .fchip.mm{background:var(--mm)}
+  .fchip.fv{background:var(--fv)}
+
+  /* ---------- bewerk-sheet ---------- */
+  .delbtn{width:100%;margin-top:14px;border:1.5px solid #E8C4BE;background:none;border-radius:14px;
+    padding:13px;font:inherit;font-weight:800;font-size:14px;color:#C0392B;cursor:pointer}
+  .delbtn.arm{background:#C0392B;border-color:#C0392B;color:#fff}
+  .mmtile{box-shadow:var(--shadow),inset 0 3px 0 var(--mm)}
+  .fvtile{box-shadow:var(--shadow),inset 0 3px 0 var(--fv)}
+
   /* ---------- settings sheet ---------- */
   .overlay{position:fixed;inset:0;background:rgba(70,54,46,.35);display:none;z-index:40;backdrop-filter:blur(2px)}
   .overlay.show{display:block}
@@ -217,7 +260,10 @@
     <div class="row2">
       <div class="field">
         <label for="inTime">Tijd</label>
-        <input type="time" id="inTime">
+        <div class="fieldrow">
+          <input type="time" id="inTime">
+          <button class="nowbtn" id="nowBtn" type="button">nu</button>
+        </div>
       </div>
       <div class="field">
         <label for="inDate">Datum</label>
@@ -253,17 +299,37 @@
       <div class="tot"><b id="totMl">0</b><span>ml totaal</span></div>
       <div class="tot"><b id="totAvg">–</b><span>ml gemiddeld</span></div>
     </div>
+    <div class="totals" style="margin-top:10px">
+      <div class="tot mmtile"><b id="totMM">0</b><span>ml moedermelk</span></div>
+      <div class="tot fvtile"><b id="totFV">0</b><span>ml flesvoeding</span></div>
+    </div>
   </div>
 
-  <!-- chart -->
+  <!-- grafieken -->
   <div class="card">
-    <h2>Afgelopen 7 dagen <small>per voeding</small></h2>
+    <h2>Overzicht <small>swipe voor meer →</small></h2>
     <div class="legend">
       <span><i style="background:var(--mm)"></i> Moedermelk</span>
       <span><i style="background:var(--fv)"></i> Flesvoeding</span>
     </div>
-    <div class="chart" id="chart"></div>
-    <div class="daydetail" id="daydetail"></div>
+    <div class="carousel" id="carousel">
+      <section class="slide">
+        <h3>Vandaag, per voeding</h3>
+        <div class="daychart" id="chartToday"></div>
+      </section>
+      <section class="slide">
+        <h3>Afgelopen 7 dagen</h3>
+        <div class="chart" id="chart"></div>
+        <div class="daydetail" id="daydetail"></div>
+        <div class="fchips" id="daychips"></div>
+      </section>
+      <section class="slide">
+        <h3>Moedermelk vs flesvoeding, 7 dagen</h3>
+        <div class="chart" id="chartSplit"></div>
+        <div class="daydetail" id="splitdetail"></div>
+      </section>
+    </div>
+    <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
   </div>
 
 </div>
@@ -282,6 +348,34 @@
   <div class="sheetbtns">
     <button class="b-ghost" id="closeSheet">Sluiten</button>
     <button class="b-primary" id="saveSettings">Opslaan</button>
+  </div>
+</div>
+
+<!-- voeding bewerken -->
+<div class="sheet" id="editSheet">
+  <h3>Voeding aanpassen</h3>
+  <div class="typerow">
+    <button id="editMM" type="button">Moedermelk</button>
+    <button id="editFV" type="button">Flesvoeding</button>
+  </div>
+  <div class="row2">
+    <div class="field"><label for="editTime">Tijd</label><input type="time" id="editTime"></div>
+    <div class="field"><label for="editDate">Datum</label><input type="date" id="editDate"></div>
+  </div>
+  <div class="mlbox">
+    <label>Hoeveelheid</label>
+    <div class="mlmain">
+      <div class="mlval"><span id="editMlVal">120</span><small>ml</small></div>
+      <div class="step">
+        <button id="editMinus" type="button">−</button>
+        <button id="editPlus" type="button">+</button>
+      </div>
+    </div>
+  </div>
+  <button class="delbtn" id="editDelete" type="button">Verwijderen</button>
+  <div class="sheetbtns">
+    <button class="b-ghost" id="editCancel" type="button">Annuleren</button>
+    <button class="b-primary" id="editSave" type="button">Opslaan</button>
   </div>
 </div>
 
@@ -391,6 +485,10 @@ function deleteFeed(id){
   if (feedsRef) { remove(ref(db, "voedingen/" + id)); }
   else { delete feeds[id]; localSave(); render(); }
 }
+function updateFeed(id, f){
+  if (feedsRef) { set(ref(db, "voedingen/" + id), f); }
+  else { feeds[id] = f; localSave(); render(); }
+}
 
 /* ---------- form ---------- */
 function setNow(){
@@ -398,6 +496,15 @@ function setNow(){
   $("inTime").value = pad(n.getHours()) + ":" + pad(n.getMinutes());
   $("inDate").value = dayKey(n);
 }
+let timeTouched = false;
+$("nowBtn").onclick = () => { setNow(); timeTouched = false; };
+$("inTime").addEventListener("input", () => { timeTouched = true; });
+$("inDate").addEventListener("input", () => { timeTouched = true; });
+document.addEventListener("visibilitychange", () => {
+  /* app weer geopend: tijd automatisch op nu zetten (tenzij zelf aangepast) */
+  if (!document.hidden) { if (!timeTouched) setNow(); render(); }
+});
+
 function setType(t){
   curType = t;
   $("btnMM").className = t === "mm" ? "on-mm" : "";
@@ -427,7 +534,7 @@ $("saveBtn").onclick = () => {
   const btn = $("saveBtn");
   btn.textContent = "Opgeslagen ✓"; btn.classList.add("saved");
   setTimeout(()=>{ btn.textContent = "Voeding opslaan"; btn.classList.remove("saved"); }, 1400);
-  setNow();
+  setNow(); timeTouched = false;
 };
 
 /* ---------- render ---------- */
@@ -479,7 +586,8 @@ function render(){
         '<div class="ml">' + f.ml + ' <small>ml</small></div>';
       const del = document.createElement("button");
       del.className = "del"; del.textContent = "✕";
-      del.onclick = () => {
+      del.onclick = (e) => {
+        e.stopPropagation();
         if (del.classList.contains("arm")) deleteFeed(f.id);
         else {
           del.classList.add("arm"); del.textContent = "zeker?";
@@ -487,24 +595,65 @@ function render(){
         }
       };
       row.appendChild(del);
+      row.onclick = () => openEdit(f.id);
       list.appendChild(row);
     });
   }
   $("totCount").textContent = today.length;
   $("totMl").textContent = totMl;
   $("totAvg").textContent = today.length ? Math.round(totMl/today.length) : "–";
+  $("totMM").textContent = today.filter(f=>f.type==="mm").reduce((s,f)=>s+Number(f.ml||0),0);
+  $("totFV").textContent = today.filter(f=>f.type==="fv").reduce((s,f)=>s+Number(f.ml||0),0);
 
-  renderChart();
+  renderCharts();
 }
 
-function renderChart(){
-  const chart = $("chart");
-  chart.innerHTML = "";
+function last7Days(){
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
     days.push({ key: dayKey(d), d });
   }
+  return days;
+}
+
+function renderCharts(){
+  renderTodayChart();
+  renderWeekChart();
+  renderSplitChart();
+}
+
+/* --- grafiek 1: vandaag, elke voeding een staaf --- */
+function renderTodayChart(){
+  const el = $("chartToday");
+  el.innerHTML = "";
+  const fs = feedsOfDay(dayKey(new Date()));
+  if (!fs.length) {
+    el.innerHTML = '<div class="chart-empty">Nog geen voedingen vandaag</div>';
+    return;
+  }
+  const max = Math.max(150, ...fs.map(f=>Number(f.ml||0)));
+  fs.forEach(f => {
+    const col = document.createElement("div");
+    col.className = "dbarcol";
+    const val = document.createElement("div");
+    val.className = "dval"; val.textContent = f.ml;
+    const bar = document.createElement("div");
+    bar.className = "dbar " + f.type;
+    bar.style.height = Math.max(5, (Number(f.ml||0) / max) * 130) + "px";
+    const tm = document.createElement("div");
+    tm.className = "dtime"; tm.textContent = f.t.slice(11,16);
+    col.append(val, bar, tm);
+    col.onclick = () => openEdit(f.id);
+    el.appendChild(col);
+  });
+}
+
+/* --- grafiek 2: 7 dagen gestapeld --- */
+function renderWeekChart(){
+  const chart = $("chart");
+  chart.innerHTML = "";
+  const days = last7Days();
   const maxTotal = Math.max(200, ...days.map(day =>
     feedsOfDay(day.key).reduce((s,f)=>s+Number(f.ml||0),0)));
 
@@ -527,11 +676,11 @@ function renderChart(){
     lab.className = "dlab";
     lab.textContent = day.key === dayKey(new Date()) ? "nu" : DAYS[day.d.getDay()];
     col.append(cnt, bar, lab);
-    col.onclick = () => { selectedDay = day.key; renderChart(); };
+    col.onclick = () => { selectedDay = day.key; renderWeekChart(); };
     chart.appendChild(col);
   });
 
-  /* day detail */
+  /* dagdetail + tikbare voedingen */
   const fs = feedsOfDay(selectedDay);
   const dd = new Date(selectedDay + "T12:00");
   const label = DAYS[dd.getDay()] + " " + dd.getDate() + " " + MONTHS[dd.getMonth()];
@@ -548,7 +697,119 @@ function renderChart(){
       "<b>" + label + "</b> · <b>" + fs.length + "</b> " + (fs.length===1?"voeding":"voedingen") + " · <b>" + tot + " ml</b> totaal<br>" +
       parts.join(" · ") + " · gem. " + Math.round(tot/fs.length) + " ml per voeding";
   }
+  const chips = $("daychips");
+  chips.innerHTML = "";
+  fs.forEach(f => {
+    const b = document.createElement("button");
+    b.className = "fchip " + f.type;
+    b.textContent = f.t.slice(11,16) + " · " + f.ml + " ml";
+    b.onclick = () => openEdit(f.id);
+    chips.appendChild(b);
+  });
 }
+
+/* --- grafiek 3: moedermelk vs flesvoeding per dag --- */
+let splitDay = dayKey(new Date());
+function renderSplitChart(){
+  const el = $("chartSplit");
+  el.innerHTML = "";
+  const sums = last7Days().map(day => {
+    const fs = feedsOfDay(day.key);
+    return { ...day,
+      mm: fs.filter(f=>f.type==="mm").reduce((s,f)=>s+Number(f.ml||0),0),
+      fv: fs.filter(f=>f.type==="fv").reduce((s,f)=>s+Number(f.ml||0),0) };
+  });
+  const max = Math.max(200, ...sums.map(s => Math.max(s.mm, s.fv)));
+  sums.forEach(s => {
+    const col = document.createElement("div");
+    col.className = "daycol" + (s.key === splitDay ? " seld" : "");
+    const cnt = document.createElement("div");
+    cnt.className = "cnt"; cnt.textContent = "";
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    const pair = document.createElement("div");
+    pair.className = "splitpair";
+    const m = document.createElement("div");
+    m.style.background = "var(--mm)";
+    m.style.height = Math.max(3, (s.mm / max) * 100) + "%";
+    const v = document.createElement("div");
+    v.style.background = "var(--fv)";
+    v.style.height = Math.max(3, (s.fv / max) * 100) + "%";
+    pair.append(m, v);
+    bar.appendChild(pair);
+    const lab = document.createElement("div");
+    lab.className = "dlab";
+    lab.textContent = s.key === dayKey(new Date()) ? "nu" : DAYS[s.d.getDay()];
+    col.append(cnt, bar, lab);
+    col.onclick = () => { splitDay = s.key; renderSplitChart(); };
+    el.appendChild(col);
+  });
+  const sel = sums.find(s => s.key === splitDay) || sums[6];
+  const dd = new Date(sel.key + "T12:00");
+  $("splitdetail").innerHTML =
+    "<b>" + DAYS[dd.getDay()] + " " + dd.getDate() + " " + MONTHS[dd.getMonth()] + "</b> · " +
+    "<b>" + sel.mm + " ml</b> moedermelk · <b>" + sel.fv + " ml</b> flesvoeding";
+}
+
+/* ---------- voeding bewerken ---------- */
+let editId = null, editType = "mm";
+function editSetType(t){
+  editType = t;
+  $("editMM").className = t === "mm" ? "on-mm" : "";
+  $("editFV").className = t === "fv" ? "on-fv" : "";
+}
+$("editMM").onclick = () => editSetType("mm");
+$("editFV").onclick = () => editSetType("fv");
+function editSetMl(v){
+  v = Math.max(5, Math.min(400, v));
+  $("editMlVal").textContent = v;
+}
+$("editMinus").onclick = () => editSetMl(Number($("editMlVal").textContent) - 5);
+$("editPlus").onclick  = () => editSetMl(Number($("editMlVal").textContent) + 5);
+
+function openEdit(id){
+  const f = feeds[id];
+  if (!f) return;
+  editId = id;
+  $("editTime").value = f.t.slice(11,16);
+  $("editDate").value = f.t.slice(0,10);
+  editSetMl(Number(f.ml || 120));
+  editSetType(f.type || "mm");
+  const del = $("editDelete");
+  del.classList.remove("arm"); del.textContent = "Verwijderen";
+  $("overlay").classList.add("show");
+  $("editSheet").classList.add("show");
+}
+function closeEdit(){
+  $("overlay").classList.remove("show");
+  $("editSheet").classList.remove("show");
+  editId = null;
+}
+$("editCancel").onclick = closeEdit;
+$("editSave").onclick = () => {
+  if (!editId) return;
+  const t = $("editTime").value, d = $("editDate").value;
+  if (!t || !d) { toast("Vul tijd en datum in"); return; }
+  updateFeed(editId, { t: d + "T" + t, ml: Number($("editMlVal").textContent), type: editType });
+  toast("Aangepast");
+  closeEdit();
+};
+$("editDelete").onclick = () => {
+  const del = $("editDelete");
+  if (del.classList.contains("arm")) {
+    deleteFeed(editId); closeEdit(); toast("Verwijderd");
+  } else {
+    del.classList.add("arm"); del.textContent = "Zeker? Tik nogmaals";
+    setTimeout(()=>{ del.classList.remove("arm"); del.textContent = "Verwijderen"; }, 3000);
+  }
+};
+
+/* ---------- carousel-stipjes ---------- */
+const car = $("carousel");
+car.addEventListener("scroll", () => {
+  const i = Math.round(car.scrollLeft / car.clientWidth);
+  document.querySelectorAll("#dots i").forEach((d, j) => d.classList.toggle("on", j === i));
+}, { passive: true });
 
 /* ---------- settings ---------- */
 function openSheet(){
@@ -559,7 +820,7 @@ function openSheet(){
 function closeSheet(){ $("overlay").classList.remove("show"); $("sheet").classList.remove("show"); }
 $("gearBtn").onclick = openSheet;
 $("bannerBtn").onclick = openSheet;
-$("overlay").onclick = closeSheet;
+$("overlay").onclick = () => { closeSheet(); closeEdit(); };
 $("closeSheet").onclick = closeSheet;
 
 $("saveSettings").onclick = () => {
