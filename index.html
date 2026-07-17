@@ -142,6 +142,16 @@
   .daydetail{margin-top:14px;background:var(--bg);border-radius:14px;padding:11px 14px;font-size:13.5px;font-weight:700;color:var(--ink-soft);line-height:1.5;min-height:44px}
   .daydetail b{color:var(--ink)}
 
+  /* ---------- dag-navigatie ---------- */
+  .daynav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .daynav h2{margin-bottom:0;display:block}
+  .daynav-title{text-align:center;flex:1;min-width:0}
+  .daynav-title small{font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+  .navbtn{border:none;background:var(--bg);width:36px;height:36px;border-radius:12px;font-size:21px;
+    color:var(--ink);cursor:pointer;font-weight:700;line-height:1;flex:none}
+  .navbtn:active{transform:scale(.92)}
+  .navbtn:disabled{opacity:.25}
+
   /* ---------- nu-knop ---------- */
   .fieldrow{display:flex;align-items:center;gap:8px}
   .fieldrow input{flex:1;min-width:0}
@@ -297,8 +307,15 @@
   </div>
 
   <!-- today -->
-  <div class="card">
-    <h2>Vandaag <small id="todayDate"></small></h2>
+  <div class="card" id="dayCard">
+    <div class="daynav">
+      <button id="prevDay" class="navbtn" type="button" aria-label="vorige dag">‹</button>
+      <div class="daynav-title">
+        <h2 id="dayTitle">Vandaag</h2>
+        <small id="todayDate"></small>
+      </div>
+      <button id="nextDay" class="navbtn" type="button" aria-label="volgende dag" disabled>›</button>
+    </div>
     <div id="todayList"><div class="empty">Nog geen voedingen vandaag</div></div>
     <div class="totals">
       <div class="tot"><b id="totCount">0</b><span>voedingen</span></div>
@@ -408,6 +425,7 @@ let feeds = {};            // id -> {t, ml, type}
 let db = null, feedsRef = null, nameRef = null;
 let selectedDay = dayKey(new Date());
 let curType = "mm";
+let viewOffset = 0;        // 0 = vandaag, 1 = gisteren, ...
 
 /* ---------- helpers ---------- */
 function pad(n){ return String(n).padStart(2,"0"); }
@@ -561,7 +579,18 @@ function render(){
   $("todaySub").textContent = today.length
     ? today.length + (today.length===1?" voeding":" voedingen") + " · " + totMl + " ml vandaag"
     : "nog geen voedingen vandaag";
-  $("todayDate").textContent = now.getDate() + " " + MONTHS[now.getMonth()];
+
+  /* bekeken dag (swipe/pijltjes) */
+  const vd = new Date();
+  vd.setDate(vd.getDate() - viewOffset);
+  const viewKey = dayKey(vd);
+  const shown = feedsOfDay(viewKey);
+  const shownMl = shown.reduce((s,f)=>s+Number(f.ml||0),0);
+  $("dayTitle").textContent = viewOffset === 0 ? "Vandaag"
+    : viewOffset === 1 ? "Gisteren"
+    : DAYS[vd.getDay()] + " " + vd.getDate() + " " + MONTHS[vd.getMonth()];
+  $("todayDate").textContent = vd.getDate() + " " + MONTHS[vd.getMonth()];
+  $("nextDay").disabled = viewOffset === 0;
 
   /* last feed */
   const all = Object.entries(feeds).map(([id,f])=>({id,...f}))
@@ -576,13 +605,14 @@ function render(){
     $("lastfeed").style.display = "none";
   }
 
-  /* today list */
+  /* lijst van de bekeken dag */
   const list = $("todayList");
-  if (!today.length) {
-    list.innerHTML = '<div class="empty">Nog geen voedingen vandaag</div>';
+  if (!shown.length) {
+    list.innerHTML = '<div class="empty">' +
+      (viewOffset === 0 ? "Nog geen voedingen vandaag" : "Geen voedingen op deze dag") + '</div>';
   } else {
     list.innerHTML = "";
-    [...today].reverse().forEach(f => {
+    [...shown].reverse().forEach(f => {
       const row = document.createElement("div");
       row.className = "feed";
       row.innerHTML =
@@ -605,11 +635,11 @@ function render(){
       list.appendChild(row);
     });
   }
-  $("totCount").textContent = today.length;
-  $("totMl").textContent = totMl;
-  $("totAvg").textContent = today.length ? Math.round(totMl/today.length) : "–";
-  $("totMM").textContent = today.filter(f=>f.type==="mm").reduce((s,f)=>s+Number(f.ml||0),0);
-  $("totFV").textContent = today.filter(f=>f.type==="fv").reduce((s,f)=>s+Number(f.ml||0),0);
+  $("totCount").textContent = shown.length;
+  $("totMl").textContent = shownMl;
+  $("totAvg").textContent = shown.length ? Math.round(shownMl/shown.length) : "–";
+  $("totMM").textContent = shown.filter(f=>f.type==="mm").reduce((s,f)=>s+Number(f.ml||0),0);
+  $("totFV").textContent = shown.filter(f=>f.type==="fv").reduce((s,f)=>s+Number(f.ml||0),0);
 
   renderCharts();
 }
@@ -851,6 +881,26 @@ $("editDelete").onclick = () => {
     setTimeout(()=>{ del.classList.remove("arm"); del.textContent = "Verwijderen"; }, 3000);
   }
 };
+
+/* ---------- dag-navigatie: pijltjes + swipe ---------- */
+$("prevDay").onclick = () => { viewOffset++; render(); };
+$("nextDay").onclick = () => { if (viewOffset > 0) { viewOffset--; render(); } };
+
+let swX = null, swY = null;
+const dayCard = $("dayCard");
+dayCard.addEventListener("touchstart", e => {
+  swX = e.touches[0].clientX; swY = e.touches[0].clientY;
+}, { passive: true });
+dayCard.addEventListener("touchend", e => {
+  if (swX === null) return;
+  const dx = e.changedTouches[0].clientX - swX;
+  const dy = e.changedTouches[0].clientY - swY;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) { viewOffset++; render(); }          /* naar links: dag terug */
+    else if (viewOffset > 0) { viewOffset--; render(); } /* naar rechts: dag vooruit */
+  }
+  swX = null; swY = null;
+}, { passive: true });
 
 /* ---------- carousel-stipjes ---------- */
 const car = $("carousel");
